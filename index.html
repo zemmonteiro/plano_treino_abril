@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plano de Treino · Abril 2026</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --swim: #1a4a6e;
+        --swim-bg: #e8f3fc;
+        --swim-dot: #2a7ab8;
+        --bike: #1a4e3a;
+        --bike-bg: #e4f5ec;
+        --bike-dot: #2a9e6a;
+        --run: #5a3010;
+        --run-bg: #fdf0e4;
+        --run-dot: #c47830;
+        --strength: #3a2060;
+        --strength-bg: #ede8f5;
+        --strength-dot: #7048c0;
+        --rest-color: #b0a8a0;
+        --text: #1a1612;
+        --muted: #8a7e76;
+        --line: #e8e0d8;
+        --page-bg: #faf8f5;
+        --card-bg: #ffffff;
+        --accent: #c47830;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--page-bg);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 48px 24px 80px;
+      }
+      .page {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .header {
+        margin-bottom: 52px;
+      }
+      .header-eyebrow {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      .header h1 {
+        font-family: "DM Serif Display", serif;
+        font-size: clamp(38px, 6vw, 64px);
+        line-height: 1.05;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .header h1 em {
+        font-style: italic;
+        color: var(--accent);
+      }
+      .header-sub {
+        font-size: 15px;
+        color: var(--muted);
+        font-weight: 300;
+        margin-top: 14px;
+        letter-spacing: 0.01em;
+      }
+      .header-line {
+        width: 48px;
+        height: 2px;
+        background: var(--accent);
+        margin-top: 24px;
+      }
+      .week-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 44px;
+      }
+      .week-card {
+        background: var(--card-bg);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px 18px;
+        position: relative;
+        overflow: hidden;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .week-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+      }
+      .week-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
+      .week-card.w1::before {
+        background: var(--bike-dot);
+      }
+      .week-card.w2::before {
+        background: var(--swim-dot);
+      }
+      .week-card.w3::before {
+        background: var(--strength-dot);
+      }
+      .week-card.w4::before {
+        background: var(--accent);
+      }
+      .week-num {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .week-hours {
+        font-family: "DM Serif Display", serif;
+        font-size: 32px;
+        line-height: 1;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+      .week-label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 300;
+      }
+      .table-wrap {
+        background: var(--card-bg);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 44px;
+      }
+      .table-header {
+        padding: 20px 28px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+      .table-header h2 {
+        font-family: "DM Serif Display", serif;
+        font-size: 20px;
+        color: var(--text);
+        font-weight: 400;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead th {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        background: var(--page-bg);
+      }
+      thead th:first-child {
+        padding-left: 28px;
+        width: 100px;
+      }
+      thead th:last-child {
+        padding-right: 28px;
+      }
+      tbody tr {
+        border-bottom: 1px solid var(--line);
+        transition: background 0.15s ease;
+      }
+      tbody tr:last-child {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: #faf7f4;
+      }
+      tbody td {
+        padding: 14px 16px;
+        vertical-align: top;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      tbody td:first-child {
+        padding-left: 28px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        white-space: nowrap;
+        padding-top: 18px;
+      }
+      tbody td:last-child {
+        padding-right: 28px;
+      }
+      .rest-cell {
+        color: var(--rest-color);
+        font-style: italic;
+        font-size: 12px;
+        padding-top: 18px !important;
+      }
+      .session-block {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 400;
+        width: fit-content;
+        line-height: 1.3;
+      }
+      .pill .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .pill-swim {
+        background: var(--swim-bg);
+        color: var(--swim);
+      }
+      .pill-swim .dot {
+        background: var(--swim-dot);
+      }
+      .pill-bike {
+        background: var(--bike-bg);
+        color: var(--bike);
+      }
+      .pill-bike .dot {
+        background: var(--bike-dot);
+      }
+      .pill-run {
+        background: var(--run-bg);
+        color: var(--run);
+      }
+      .pill-run .dot {
+        background: var(--run-dot);
+      }
+      .pill-strength {
+        background: var(--strength-bg);
+        color: var(--strength);
+      }
+      .pill-strength .dot {
+        background: var(--strength-dot);
+      }
+      .pill-mobility {
+        background: #fef4e8;
+        color: #7a4a10;
+      }
+      .pill-mobility .dot {
+        background: #e8a040;
+      }
+      .pill-partner {
+        background: #f0f4f8;
+        color: #3a4a5a;
+      }
+      .pill-partner .dot {
+        background: #7090b0;
+      }
+      .recovery-cell {
+        background: #fdf8f6;
+      }
+      .total-row td {
+        background: var(--page-bg) !important;
+        font-weight: 500;
+        font-size: 13px;
+        border-top: 2px solid var(--line) !important;
+        padding-top: 16px !important;
+        padding-bottom: 16px !important;
+      }
+      .total-row td:first-child {
+        color: var(--muted);
+      }
+      .total-num {
+        font-family: "DM Serif Display", serif;
+        font-size: 18px;
+        color: var(--text);
+      }
+      .total-num.recovery {
+        color: var(--accent);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 28px;
+        border-top: 1px solid var(--line);
+        background: var(--page-bg);
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .notes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 44px;
+      }
+      .note-card {
+        background: var(--card-bg);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 22px 24px;
+      }
+      .note-card h3 {
+        font-family: "DM Serif Display", serif;
+        font-size: 16px;
+        font-weight: 400;
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+      .note-card ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .note-card li {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 300;
+        padding-left: 14px;
+        position: relative;
+        line-height: 1.5;
+      }
+      .note-card li::before {
+        content: "—";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-size: 11px;
+        top: 1px;
+      }
+      .footer {
+        text-align: center;
+        font-size: 12px;
+        color: var(--rest-color);
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        padding-top: 32px;
+        border-top: 1px solid var(--line);
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .header {
+        animation: fadeUp 0.5s ease both;
+      }
+      .week-strip {
+        animation: fadeUp 0.5s 0.1s ease both;
+      }
+      .table-wrap {
+        animation: fadeUp 0.5s 0.2s ease both;
+      }
+      .notes {
+        animation: fadeUp 0.5s 0.3s ease both;
+      }
+      @media (max-width: 680px) {
+        .week-strip {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .notes {
+          grid-template-columns: 1fr;
+        }
+        thead th,
+        tbody td {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+        thead th:first-child,
+        tbody td:first-child {
+          padding-left: 16px;
+        }
+        thead th:last-child,
+        tbody td:last-child {
+          padding-right: 16px;
+        }
+        .legend {
+          padding: 16px;
+        }
+        .pill {
+          font-size: 11px;
+        }
+        .table-header {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div class="header-eyebrow">Half Ironman · Base Period</div>
+        <h1>Build the <em>Base</em><br />Abril 2026</h1>
+        <p class="header-sub">
+          Plano mensal de treino · 4 semanas de progressão
+        </p>
+        <div class="header-line"></div>
+      </header>
+
+      <div class="week-strip">
+        <div class="week-card w1">
+          <div class="week-num">Semana 1</div>
+          <div class="week-hours">11h45</div>
+          <div class="week-label">Introdução ao volume</div>
+        </div>
+        <div class="week-card w2">
+          <div class="week-num">Semana 2</div>
+          <div class="week-hours">13h30</div>
+          <div class="week-label">Progressão moderada</div>
+        </div>
+        <div class="week-card w3">
+          <div class="week-num">Semana 3</div>
+          <div class="week-hours">14h45</div>
+          <div class="week-label">Pico de carga</div>
+        </div>
+        <div class="week-card w4">
+          <div class="week-num">Semana 4</div>
+          <div class="week-hours">9h15</div>
+          <div class="week-label">Recuperação activa</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <h2>Distribuição semanal</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Dia</th>
+              <th>Semana 1 · 11h45</th>
+              <th>Semana 2 · 13h30</th>
+              <th>Semana 3 · 14h45</th>
+              <th>Semana 4 · 9h15</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- SEGUNDA -->
+            <tr>
+              <td>Segunda</td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-swim"
+                    ><span class="dot"></span>Natação · 1h</span
+                  >
+                  <span class="pill pill-strength"
+                    ><span class="dot"></span>Força · 1h</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-swim"
+                    ><span class="dot"></span>Natação · 1h</span
+                  >
+                  <span class="pill pill-strength"
+                    ><span class="dot"></span>Força · 1h</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-swim"
+                    ><span class="dot"></span>Natação · 1h</span
+                  >
+                  <span class="pill pill-strength"
+                    ><span class="dot"></span>Força · 1h</span
+                  >
+                </div>
+              </td>
+              <td class="recovery-cell">
+                <div class="session-block">
+                  <span class="pill pill-swim"
+                    ><span class="dot"></span>Natação · 45m</span
+                  >
+                  <span class="pill pill-mobility"
+                    ><span class="dot"></span>Mobilidade · 45m</span
+                  >
+                </div>
+              </td>
+            </tr>
+
+            <!-- TERÇA -->
+            <tr>
+              <td>Terça</td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike + Activação · 1h</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida + Strides · 45m</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike + Activação · 1h15</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida + Strides · 1h</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike + Activação · 1h15</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida + Strides · 1h</span
+                  >
+                </div>
+              </td>
+              <td class="recovery-cell">
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike · 45m</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida · 30m</span
+                  >
+                </div>
+              </td>
+            </tr>
+
+            <!-- QUARTA -->
+            <tr>
+              <td>Quarta</td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike Z2 · 1h</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida Z2 · 45m</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike Z2 · 1h30</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida Z2 · 45m</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike Z2 · 1h30</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida Z2 · 45m</span
+                  >
+                </div>
+              </td>
+              <td class="recovery-cell">
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Bike Z2 · 45m</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida Z2 · 30m</span
+                  >
+                </div>
+              </td>
+            </tr>
+
+            <!-- QUINTA -->
+            <tr>
+              <td>Quinta</td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida Z2 · 1h</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida Z2 · 1h</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida Z2 · 1h15</span
+                  >
+                </div>
+              </td>
+              <td class="recovery-cell rest-cell">Descanso</td>
+            </tr>
+
+            <!-- SEXTA -->
+            <tr>
+              <td>Sexta</td>
+              <td class="rest-cell">Descanso</td>
+              <td class="rest-cell">Descanso</td>
+              <td class="rest-cell">Descanso</td>
+              <td class="recovery-cell rest-cell">Descanso</td>
+            </tr>
+
+            <!-- SÁBADO -->
+            <tr>
+              <td>Sábado</td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Long Bike · 3h30</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida · 30m</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Long Bike · 4h</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida · 30m</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Long Bike · 5h</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida · 30m</span
+                  >
+                </div>
+              </td>
+              <td class="recovery-cell">
+                <div class="session-block">
+                  <span class="pill pill-bike"
+                    ><span class="dot"></span>Long Bike · 2h30</span
+                  >
+                  <span class="pill pill-run"
+                    ><span class="dot"></span>Corrida · 15m</span
+                  >
+                </div>
+              </td>
+            </tr>
+
+            <!-- DOMINGO -->
+            <tr>
+              <td>Domingo</td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-partner"
+                    ><span class="dot"></span>Patricia · 1h15</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-partner"
+                    ><span class="dot"></span>Patricia · 1h30</span
+                  >
+                </div>
+              </td>
+              <td>
+                <div class="session-block">
+                  <span class="pill pill-partner"
+                    ><span class="dot"></span>Patricia · 1h30</span
+                  >
+                </div>
+              </td>
+              <td class="recovery-cell">
+                <div class="session-block">
+                  <span class="pill pill-partner"
+                    ><span class="dot"></span>Patricia · 2h30</span
+                  >
+                </div>
+              </td>
+            </tr>
+
+            <!-- TOTAL -->
+            <tr class="total-row">
+              <td>Total</td>
+              <td><span class="total-num">11h45</span></td>
+              <td><span class="total-num">13h30</span></td>
+              <td><span class="total-num">14h45</span></td>
+              <td><span class="total-num recovery">9h15</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--swim-dot)"></span
+            >Natação
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--bike-dot)"></span
+            >Ciclismo
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: var(--run-dot)"></span
+            >Corrida
+          </div>
+          <div class="legend-item">
+            <span
+              class="legend-dot"
+              style="background: var(--strength-dot)"
+            ></span
+            >Força
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #e8a040"></span
+            >Mobilidade
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background: #7090b0"></span>Patricia
+          </div>
+        </div>
+      </div>
+
+      <div class="notes">
+        <div class="note-card">
+          <h3>Zonas de intensidade</h3>
+          <ul>
+            <li>Z2 — Aeróbico base. Ritmo confortável, capaz de conversar.</li>
+            <li>
+              Activação / Sprints — Curtos, para activar o sistema
+              neuromuscular. Sem acumulação de fadiga.
+            </li>
+            <li>
+              Strides — Acelerações progressivas de 20–30 segundos com
+              recuperação total entre cada uma.
+            </li>
+            <li>
+              Patricia — Actividade à escolha. Manter ritmo leve e desfrutar do
+              movimento.
+            </li>
+          </ul>
+        </div>
+        <div class="note-card">
+          <h3>Notas do plano</h3>
+          <ul>
+            <li>
+              Progressão de 11h45 → 13h30 → 14h45 com semana 4 de recuperação a
+              ~63% do volume de pico.
+            </li>
+            <li>
+              Sexta-feira é sempre descanso. Protege a qualidade do longo de
+              sábado.
+            </li>
+            <li>
+              O Long Bike de sábado é o pilar central do bloco — prioriza este
+              treino.
+            </li>
+            <li>
+              Hidratação e nutrição em todas as sessões acima de 1h30, sem
+              excepção.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <footer class="footer">
+        Plano elaborado para Half Ironman · Base Period · Abril 2026
+      </footer>
+    </div>
+  </body>
+</html>
