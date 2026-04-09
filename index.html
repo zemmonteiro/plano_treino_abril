@@ -1,89 +1,298 @@
 <!doctype html>
+
 <html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plano de Treino · Abril 2026</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plano de Treino · Abril 2026</title>
 
-  <style>
-    body { font-family: Arial; padding: 20px; }
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans&display=swap" rel="stylesheet">
 
-    .pill {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 20px;
-      margin-bottom: 4px;
-      background: #eee;
-      font-size: 12px;
-    }
+<style>
+body {
+  font-family: "DM Sans", sans-serif;
+  background: #faf8f5;
+  padding: 40px;
+}
 
-    .session-block {
-      margin-bottom: 10px;
-    }
+.pill {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 20px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
 
-    .link-input {
-      display: block;
-      margin-top: 4px;
-      padding: 4px 6px;
-      font-size: 11px;
-      width: 250px;
-    }
-  </style>
+.session-block {
+  margin-bottom: 10px;
+}
+
+.link-input {
+  margin-top: 6px;
+  padding: 5px 8px;
+  font-size: 11px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 220px;
+}
+</style>
+
 </head>
 
 <body>
 
 <h1>Plano Abril 2026</h1>
 
-<h2>Segunda</h2>
+<!-- SEMANA 1 -->
 
+<h2>Semana 1</h2>
+
+<h3>Segunda</h3>
 <div class="session-block">
-  <div class="pill">Natação · 1h</div>
-  <input class="link-input" placeholder="Colar link..."
-    data-id="abril-s1-seg-natacao">
+<span class="pill">Natação · 1h</span>
+<input class="link-input" data-id="abril-s1-seg-natacao">
+</div>
+<div class="session-block">
+<span class="pill">Força · 1h</span>
+<input class="link-input" data-id="abril-s1-seg-forca">
 </div>
 
+<h3>Terça</h3>
 <div class="session-block">
-  <div class="pill">Força · 1h</div>
-  <input class="link-input" placeholder="Colar link..."
-    data-id="abril-s1-seg-forca">
+<span class="pill">Bike · 1h</span>
+<input class="link-input" data-id="abril-s1-ter-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 45m</span>
+<input class="link-input" data-id="abril-s1-ter-run">
 </div>
 
-
-<h2>Terça</h2>
-
+<h3>Quarta</h3>
 <div class="session-block">
-  <div class="pill">Bike · 1h</div>
-  <input class="link-input" placeholder="Colar link..."
-    data-id="abril-s1-terca-bike">
+<span class="pill">Bike · 1h</span>
+<input class="link-input" data-id="abril-s1-qua-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 45m</span>
+<input class="link-input" data-id="abril-s1-qua-run">
 </div>
 
+<h3>Quinta</h3>
 <div class="session-block">
-  <div class="pill">Corrida · 45m</div>
-  <input class="link-input" placeholder="Colar link..."
-    data-id="abril-s1-terca-run">
+<span class="pill">Corrida · 1h</span>
+<input class="link-input" data-id="abril-s1-qui-run">
 </div>
 
+<h3>Sexta</h3>
+<p>Descanso</p>
 
-<!-- SCRIPT -->
+<h3>Sábado</h3>
+<div class="session-block">
+<span class="pill">Long Bike · 3h30</span>
+<input class="link-input" data-id="abril-s1-sab-longbike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 30m</span>
+<input class="link-input" data-id="abril-s1-sab-run">
+</div>
+
+<h3>Domingo</h3>
+<div class="session-block">
+<span class="pill">Patricia · 1h15</span>
+<input class="link-input" data-id="abril-s1-dom-patricia">
+</div>
+
+<!-- SEMANA 2 -->
+
+<h2>Semana 2</h2>
+
+<h3>Segunda</h3>
+<div class="session-block">
+<span class="pill">Natação · 1h</span>
+<input class="link-input" data-id="abril-s2-seg-natacao">
+</div>
+<div class="session-block">
+<span class="pill">Força · 1h</span>
+<input class="link-input" data-id="abril-s2-seg-forca">
+</div>
+
+<h3>Terça</h3>
+<div class="session-block">
+<span class="pill">Bike · 1h15</span>
+<input class="link-input" data-id="abril-s2-ter-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 1h</span>
+<input class="link-input" data-id="abril-s2-ter-run">
+</div>
+
+<h3>Quarta</h3>
+<div class="session-block">
+<span class="pill">Bike · 1h30</span>
+<input class="link-input" data-id="abril-s2-qua-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 45m</span>
+<input class="link-input" data-id="abril-s2-qua-run">
+</div>
+
+<h3>Quinta</h3>
+<div class="session-block">
+<span class="pill">Corrida · 1h</span>
+<input class="link-input" data-id="abril-s2-qui-run">
+</div>
+
+<h3>Sexta</h3>
+<p>Descanso</p>
+
+<h3>Sábado</h3>
+<div class="session-block">
+<span class="pill">Long Bike · 4h</span>
+<input class="link-input" data-id="abril-s2-sab-longbike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 30m</span>
+<input class="link-input" data-id="abril-s2-sab-run">
+</div>
+
+<h3>Domingo</h3>
+<div class="session-block">
+<span class="pill">Patricia · 1h30</span>
+<input class="link-input" data-id="abril-s2-dom-patricia">
+</div>
+
+<!-- SEMANA 3 -->
+
+<h2>Semana 3</h2>
+
+<h3>Segunda</h3>
+<div class="session-block">
+<span class="pill">Natação · 1h</span>
+<input class="link-input" data-id="abril-s3-seg-natacao">
+</div>
+<div class="session-block">
+<span class="pill">Força · 1h</span>
+<input class="link-input" data-id="abril-s3-seg-forca">
+</div>
+
+<h3>Terça</h3>
+<div class="session-block">
+<span class="pill">Bike · 1h15</span>
+<input class="link-input" data-id="abril-s3-ter-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 1h</span>
+<input class="link-input" data-id="abril-s3-ter-run">
+</div>
+
+<h3>Quarta</h3>
+<div class="session-block">
+<span class="pill">Bike · 1h30</span>
+<input class="link-input" data-id="abril-s3-qua-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 45m</span>
+<input class="link-input" data-id="abril-s3-qua-run">
+</div>
+
+<h3>Quinta</h3>
+<div class="session-block">
+<span class="pill">Corrida · 1h15</span>
+<input class="link-input" data-id="abril-s3-qui-run">
+</div>
+
+<h3>Sexta</h3>
+<p>Descanso</p>
+
+<h3>Sábado</h3>
+<div class="session-block">
+<span class="pill">Long Bike · 5h</span>
+<input class="link-input" data-id="abril-s3-sab-longbike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 30m</span>
+<input class="link-input" data-id="abril-s3-sab-run">
+</div>
+
+<h3>Domingo</h3>
+<div class="session-block">
+<span class="pill">Patricia · 1h30</span>
+<input class="link-input" data-id="abril-s3-dom-patricia">
+</div>
+
+<!-- SEMANA 4 -->
+
+<h2>Semana 4</h2>
+
+<h3>Segunda</h3>
+<div class="session-block">
+<span class="pill">Natação · 45m</span>
+<input class="link-input" data-id="abril-s4-seg-natacao">
+</div>
+<div class="session-block">
+<span class="pill">Mobilidade · 45m</span>
+<input class="link-input" data-id="abril-s4-seg-mobility">
+</div>
+
+<h3>Terça</h3>
+<div class="session-block">
+<span class="pill">Bike · 45m</span>
+<input class="link-input" data-id="abril-s4-ter-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 30m</span>
+<input class="link-input" data-id="abril-s4-ter-run">
+</div>
+
+<h3>Quarta</h3>
+<div class="session-block">
+<span class="pill">Bike · 45m</span>
+<input class="link-input" data-id="abril-s4-qua-bike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 30m</span>
+<input class="link-input" data-id="abril-s4-qua-run">
+</div>
+
+<h3>Quinta</h3>
+<p>Descanso</p>
+
+<h3>Sexta</h3>
+<p>Descanso</p>
+
+<h3>Sábado</h3>
+<div class="session-block">
+<span class="pill">Long Bike · 2h30</span>
+<input class="link-input" data-id="abril-s4-sab-longbike">
+</div>
+<div class="session-block">
+<span class="pill">Corrida · 15m</span>
+<input class="link-input" data-id="abril-s4-sab-run">
+</div>
+
+<h3>Domingo</h3>
+<div class="session-block">
+<span class="pill">Patricia · 2h30</span>
+<input class="link-input" data-id="abril-s4-dom-patricia">
+</div>
+
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwN5NfRUJVIbAfjmM0sisiMChc2D5GYGnR5ld-CKL_2qXuMVFqVNGd6OrFFUZ5NU997/exec";
 
 const inputs = document.querySelectorAll('.link-input');
 
-// 🔄 CARREGAR DADOS
+// carregar dados
 fetch(API_URL)
-  .then(res => res.json())
-  .then(data => {
-    inputs.forEach(input => {
-      const id = input.dataset.id;
-      if (data[id]) {
-        input.value = data[id];
-      }
-    });
+.then(res => res.json())
+.then(data => {
+  inputs.forEach(input => {
+    if(data[input.dataset.id]){
+      input.value = data[input.dataset.id];
+    }
   });
+});
 
-// 💾 GUARDAR AUTOMÁTICO
+// guardar
 inputs.forEach(input => {
   input.addEventListener('input', () => {
     fetch(API_URL, {
