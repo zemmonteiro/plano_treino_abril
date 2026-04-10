@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="pt">
 <head>
 <meta charset="UTF-8" />
@@ -6,14 +7,25 @@
 
 <title>Plano Abril 2026</title>
 
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
 <style>
 body {
-  font-family: sans-serif;
-  padding: 30px;
+  font-family: "DM Sans", sans-serif;
   background: #f7f5f2;
+  padding: 40px;
+  color: #1a1612;
 }
 
-.week { margin-bottom: 40px; }
+h1 {
+  font-family: "DM Serif Display";
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+.week {
+  margin-bottom: 40px;
+}
 
 .day {
   margin-bottom: 20px;
@@ -21,175 +33,159 @@ body {
 
 .card {
   background: white;
-  padding: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
   margin-bottom: 8px;
-  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.tag {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
 .actions {
   display: flex;
-  gap: 5px;
+  gap: 6px;
 }
 
 button {
   border: none;
-  padding: 5px 8px;
-  border-radius: 6px;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 11px;
   cursor: pointer;
 }
 
-.save-btn { background: #ddd; }
-.view-btn { background: #2a9e6a; color: white; display: none; }
-.edit-btn { background: #444; color: white; }
+.save-btn {
+  background: #eee;
+}
 
-select {
-  padding: 5px;
+.view-btn {
+  background: #2a9e6a;
+  color: white;
+  display: none;
+}
+
+input {
+  display: none;
 }
 </style>
+
 </head>
 
 <body>
 
 <h1>Plano Abril 2026</h1>
+
 <div id="app"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwt6R_v15T7YZU4biC5phKDv6Kd02HKmIdtABinZHU15Lf5olggYnjLc7dc6zrpdOLK/exec";
 
-const diasValidos = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+const dataPlano = [
+  {
+    semana: 1,
+    dias: {
+      "Segunda": ["Natação · 1h","Força · 1h"],
+      "Terça": ["Bike · 1h","Corrida · 45m"],
+      "Quarta": ["Bike · 1h","Corrida · 45m"],
+      "Quinta": ["Corrida · 1h"],
+      "Sexta": [],
+      "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
+      "Domingo": ["Patricia · 1h15"]
+    }
+  }
+];
 
-const dataPlano = {
-  "Segunda": ["Natação · 1h","Força · 1h"],
-  "Terça": ["Bike · 1h","Corrida · 45m"],
-  "Quarta": ["Bike · 1h","Corrida · 45m"],
-  "Quinta": ["Corrida · 1h"],
-  "Sexta": [],
-  "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
-  "Domingo": ["Patricia · 1h15"]
-};
+// duplicar semanas automaticamente
+while(dataPlano.length < 4){
+  dataPlano.push(JSON.parse(JSON.stringify(dataPlano[dataPlano.length-1])));
+  dataPlano[dataPlano.length-1].semana = dataPlano.length;
+}
 
 const app = document.getElementById("app");
-const cards = {};
 
-// RENDER
-Object.entries(dataPlano).forEach(([dia, treinos]) => {
+// render
+dataPlano.forEach(sem => {
+  const w = document.createElement("div");
+  w.className = "week";
 
-  const week = document.createElement("div");
-  week.className = "week";
+  w.innerHTML += `<h2>Semana ${sem.semana}</h2>`;
 
-  week.innerHTML = `<h2>${dia}</h2>`;
+  Object.entries(sem.dias).forEach(([dia, treinos]) => {
 
-  treinos.forEach((t, i) => {
+    const d = document.createElement("div");
+    d.className = "day";
+    d.innerHTML += `<h3>${dia}</h3>`;
 
-    const id = "treino-" + dia + "-" + i;
+    if(treinos.length === 0){
+      d.innerHTML += "<p>Descanso</p>";
+      w.appendChild(d);
+      return;
+    }
 
-    const card = document.createElement("div");
-    card.className = "card";
-    card.dataset.id = id;
-    card.dataset.dia = dia;
+    treinos.forEach((t, i) => {
+      const id = `abril-s${sem.semana}-${dia}-${i}`;
 
-    card.innerHTML = `
-      <div>
-        <strong>${t}</strong>
-        <div>Dia: <span class="dia-label">${dia}</span></div>
-      </div>
+      const card = document.createElement("div");
+      card.className = "card";
 
-      <div class="actions">
-        <button class="save-btn">Link</button>
-        <button class="edit-btn">Editar</button>
-        <button class="view-btn">Ver</button>
-      </div>
-    `;
+      card.innerHTML = `
+        <div class="tag">${t}</div>
+        <div class="actions">
+          <button class="save-btn">Guardar</button>
+          <button class="view-btn">Ver treino</button>
+        </div>
+        <input data-id="${id}" placeholder="link">
+      `;
 
-    const saveBtn = card.querySelector(".save-btn");
-    const editBtn = card.querySelector(".edit-btn");
-    const viewBtn = card.querySelector(".view-btn");
-    const diaLabel = card.querySelector(".dia-label");
+      const input = card.querySelector("input");
+      const saveBtn = card.querySelector(".save-btn");
+      const viewBtn = card.querySelector(".view-btn");
 
-    // LINK
-    saveBtn.onclick = () => {
-      const link = prompt("Link do treino:");
-      if(!link) return;
+      saveBtn.onclick = () => {
+        const link = prompt("Cola o link do treino:");
+        if(!link) return;
 
-      card.dataset.link = link;
-      viewBtn.style.display = "inline-block";
-      viewBtn.onclick = () => window.open(link, "_blank");
+        input.value = link;
 
-      save(card.dataset.id, card.dataset.dia, link);
-    };
+        fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ id, link })
+        });
 
-    // EDITAR DIA
-    editBtn.onclick = () => {
-      const novoDia = prompt(
-        "Novo dia (Segunda a Domingo):",
-        card.dataset.dia
-      );
+        viewBtn.style.display = "inline-block";
+        viewBtn.onclick = () => window.open(link, "_blank");
+      };
 
-      if(!novoDia || !diasValidos.includes(novoDia)) {
-        alert("Dia inválido");
-        return;
-      }
+      d.appendChild(card);
+    });
 
-      card.dataset.dia = novoDia;
-      diaLabel.textContent = novoDia;
-
-      save(card.dataset.id, novoDia, card.dataset.link || "");
-    };
-
-    cards[id] = card;
-    week.appendChild(card);
+    w.appendChild(d);
   });
 
-  app.appendChild(week);
+  app.appendChild(w);
 });
 
-// LOAD
+// load dados
 fetch(API_URL)
   .then(r => r.json())
   .then(data => {
+    document.querySelectorAll("input").forEach(input => {
+      const id = input.dataset.id;
+      if(data[id]){
+        const card = input.closest(".card");
+        const viewBtn = card.querySelector(".view-btn");
 
-    Object.keys(data).forEach(id => {
-
-      const item = data[id];
-      const card = cards[id];
-
-      if(!card) return;
-
-      const viewBtn = card.querySelector(".view-btn");
-      const diaLabel = card.querySelector(".dia-label");
-
-      if(item.link){
-        card.dataset.link = item.link;
         viewBtn.style.display = "inline-block";
-        viewBtn.onclick = () => window.open(item.link, "_blank");
+        viewBtn.onclick = () => window.open(data[id], "_blank");
       }
-
-      if(item.dia){
-        card.dataset.dia = item.dia;
-        diaLabel.textContent = item.dia;
-      }
-
     });
-
   });
-
-// SAVE
-function save(id, dia, link){
-  fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      id,
-      dia,
-      link
-    })
-  });
-}
 </script>
 
 </body>
