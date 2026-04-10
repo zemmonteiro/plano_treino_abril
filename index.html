@@ -4,15 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Plano Abril 2026</title>
+<title>Plano Abril</title>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <style>
 body { font-family: sans-serif; padding: 20px; }
-.week { margin-bottom: 30px; }
-.day { margin-bottom: 15px; }
-.card { background: #eee; padding: 10px; margin: 5px 0; cursor: grab; }
+.day { margin-bottom: 20px; }
+.card {
+  background: #eee;
+  padding: 10px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.actions button {
+  margin-left: 5px;
+}
 .list { min-height: 20px; }
 </style>
 
@@ -21,8 +29,6 @@ body { font-family: sans-serif; padding: 20px; }
 <body>
 
 <h1>Plano Abril</h1>
-
-<!-- 🔥 ISTO É O MAIS IMPORTANTE -->
 <div id="app"></div>
 
 <script>
@@ -42,12 +48,10 @@ const dataPlano = {
 
 const app = document.getElementById("app");
 
-if(!app){
-  console.error("ERRO: #app não existe");
-  return;
-}
+// 🔹 guardar referência aos cards
+const cardsMap = {};
 
-// render
+// 🔹 render base
 Object.entries(dataPlano).forEach(([dia, treinos]) => {
 
   const d = document.createElement("div");
@@ -67,16 +71,46 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
     card.dataset.id = id;
     card.dataset.dia = dia;
 
-    card.innerHTML = t;
+    card.innerHTML = `
+      <span>${t}</span>
+      <div class="actions">
+        <button class="save">Guardar</button>
+        <button class="view" style="display:none">Ver</button>
+      </div>
+    `;
+
+    const saveBtn = card.querySelector(".save");
+    const viewBtn = card.querySelector(".view");
+
+    // guardar link
+    saveBtn.onclick = () => {
+      const link = prompt("Link do treino:");
+      if(!link) return;
+
+      card.dataset.link = link;
+
+      viewBtn.style.display = "inline-block";
+      viewBtn.onclick = () => window.open(link, "_blank");
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          id,
+          dia: card.dataset.dia,
+          link
+        })
+      });
+    };
 
     list.appendChild(card);
+    cardsMap[id] = card;
   });
 
   d.appendChild(list);
   app.appendChild(d);
 });
 
-// drag
+// 🔹 DRAG
 document.querySelectorAll(".list").forEach(list => {
   new Sortable(list, {
     group: "treinos",
@@ -84,18 +118,57 @@ document.querySelectorAll(".list").forEach(list => {
 
     onAdd: function(evt){
       const card = evt.item;
+      const id = card.dataset.id;
       const newDia = evt.to.dataset.dia;
+
+      card.dataset.dia = newDia;
 
       fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({
-          id: card.dataset.id,
-          dia: newDia
+          id,
+          dia: newDia,
+          link: card.dataset.link || ""
         })
       });
     }
   });
 });
+
+// 🔹 LOAD (recuperar dados do Sheets)
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
+
+    Object.keys(data).forEach(id => {
+
+      const item = data[id];
+      const card = cardsMap[id];
+
+      if(!card) return;
+
+      const viewBtn = card.querySelector(".view");
+
+      // aplicar link
+      if(item.link){
+        card.dataset.link = item.link;
+
+        viewBtn.style.display = "inline-block";
+        viewBtn.onclick = () => window.open(item.link, "_blank");
+      }
+
+      // aplicar dia (move card)
+      if(item.dia){
+        const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
+        if(newList){
+          newList.appendChild(card);
+          card.dataset.dia = item.dia;
+        }
+      }
+
+    });
+
+  });
 
 };
 </script>
