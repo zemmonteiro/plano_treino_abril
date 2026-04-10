@@ -18,9 +18,7 @@ body { font-family: sans-serif; padding: 20px; }
   display: flex;
   justify-content: space-between;
 }
-.actions button {
-  margin-left: 5px;
-}
+.actions button { margin-left: 5px; }
 .list { min-height: 20px; }
 </style>
 
@@ -47,11 +45,9 @@ const dataPlano = {
 };
 
 const app = document.getElementById("app");
-
-// 🔹 guardar referência aos cards
 const cardsMap = {};
 
-// 🔹 render base
+// RENDER
 Object.entries(dataPlano).forEach(([dia, treinos]) => {
 
   const d = document.createElement("div");
@@ -64,7 +60,7 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
 
   treinos.forEach((t, i) => {
 
-    const id = dia + "-" + i;
+    const id = "treino-" + dia + "-" + i; // 🔥 FIX
 
     const card = document.createElement("div");
     card.className = "card";
@@ -82,7 +78,6 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
     const saveBtn = card.querySelector(".save");
     const viewBtn = card.querySelector(".view");
 
-    // guardar link
     saveBtn.onclick = () => {
       const link = prompt("Link do treino:");
       if(!link) return;
@@ -110,7 +105,7 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
   app.appendChild(d);
 });
 
-// 🔹 DRAG
+// DRAG
 document.querySelectorAll(".list").forEach(list => {
   new Sortable(list, {
     group: "treinos",
@@ -135,7 +130,7 @@ document.querySelectorAll(".list").forEach(list => {
   });
 });
 
-// 🔹 LOAD (recuperar dados do Sheets)
+// LOAD
 fetch(API_URL)
   .then(res => res.json())
   .then(data => {
@@ -149,15 +144,12 @@ fetch(API_URL)
 
       const viewBtn = card.querySelector(".view");
 
-      // aplicar link
       if(item.link){
         card.dataset.link = item.link;
-
         viewBtn.style.display = "inline-block";
         viewBtn.onclick = () => window.open(item.link, "_blank");
       }
 
-      // aplicar dia (move card)
       if(item.dia){
         const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
         if(newList){
