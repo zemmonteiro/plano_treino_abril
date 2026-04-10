@@ -4,59 +4,83 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Plano Abril</title>
-
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<title>Plano Abril 2026</title>
 
 <style>
-body { font-family: sans-serif; padding: 20px; }
-.day { margin-bottom: 20px; }
+body {
+  font-family: sans-serif;
+  padding: 30px;
+  background: #f7f5f2;
+}
+
+.week { margin-bottom: 40px; }
+
+.day {
+  margin-bottom: 20px;
+}
+
 .card {
-  background: #eee;
-  padding: 10px;
-  margin: 5px 0;
+  background: white;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
-.actions button { margin-left: 5px; }
-.list { min-height: 20px; }
-</style>
 
+.actions {
+  display: flex;
+  gap: 5px;
+}
+
+button {
+  border: none;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.save-btn { background: #ddd; }
+.view-btn { background: #2a9e6a; color: white; display: none; }
+.edit-btn { background: #444; color: white; }
+
+select {
+  padding: 5px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>Plano Abril</h1>
+<h1>Plano Abril 2026</h1>
 <div id="app"></div>
 
 <script>
-window.onload = function () {
-
 const API_URL = "https://script.google.com/macros/s/AKfycbwt6R_v15T7YZU4biC5phKDv6Kd02HKmIdtABinZHU15Lf5olggYnjLc7dc6zrpdOLK/exec";
 
+const diasValidos = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+
 const dataPlano = {
-  "Segunda": ["Natação","Força"],
-  "Terça": ["Bike","Corrida"],
-  "Quarta": ["Bike","Corrida"],
-  "Quinta": ["Corrida"],
+  "Segunda": ["Natação · 1h","Força · 1h"],
+  "Terça": ["Bike · 1h","Corrida · 45m"],
+  "Quarta": ["Bike · 1h","Corrida · 45m"],
+  "Quinta": ["Corrida · 1h"],
   "Sexta": [],
-  "Sábado": ["Long Bike","Corrida"],
-  "Domingo": ["Patricia"]
+  "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
+  "Domingo": ["Patricia · 1h15"]
 };
 
 const app = document.getElementById("app");
-const cardsMap = {};
+const cards = {};
 
-// 🔹 RENDER
+// RENDER
 Object.entries(dataPlano).forEach(([dia, treinos]) => {
 
-  const d = document.createElement("div");
-  d.className = "day";
-  d.innerHTML = "<h3>"+dia+"</h3>";
+  const week = document.createElement("div");
+  week.className = "week";
 
-  const list = document.createElement("div");
-  list.className = "list";
-  list.dataset.dia = dia;
+  week.innerHTML = `<h2>${dia}</h2>`;
 
   treinos.forEach((t, i) => {
 
@@ -68,58 +92,97 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
     card.dataset.dia = dia;
 
     card.innerHTML = `
-      <span>${t}</span>
+      <div>
+        <strong>${t}</strong>
+        <div>Dia: <span class="dia-label">${dia}</span></div>
+      </div>
+
       <div class="actions">
-        <button class="save">Guardar</button>
-        <button class="view" style="display:none">Ver</button>
+        <button class="save-btn">Link</button>
+        <button class="edit-btn">Editar</button>
+        <button class="view-btn">Ver</button>
       </div>
     `;
 
-    const saveBtn = card.querySelector(".save");
-    const viewBtn = card.querySelector(".view");
+    const saveBtn = card.querySelector(".save-btn");
+    const editBtn = card.querySelector(".edit-btn");
+    const viewBtn = card.querySelector(".view-btn");
+    const diaLabel = card.querySelector(".dia-label");
 
+    // LINK
     saveBtn.onclick = () => {
       const link = prompt("Link do treino:");
       if(!link) return;
 
       card.dataset.link = link;
-
       viewBtn.style.display = "inline-block";
       viewBtn.onclick = () => window.open(link, "_blank");
 
-      saveData(id, card.dataset.dia, link);
+      save(card.dataset.id, card.dataset.dia, link);
     };
 
-    list.appendChild(card);
-    cardsMap[id] = card;
+    // EDITAR DIA
+    editBtn.onclick = () => {
+      const novoDia = prompt(
+        "Novo dia (Segunda a Domingo):",
+        card.dataset.dia
+      );
+
+      if(!novoDia || !diasValidos.includes(novoDia)) {
+        alert("Dia inválido");
+        return;
+      }
+
+      card.dataset.dia = novoDia;
+      diaLabel.textContent = novoDia;
+
+      save(card.dataset.id, novoDia, card.dataset.link || "");
+    };
+
+    cards[id] = card;
+    week.appendChild(card);
   });
 
-  d.appendChild(list);
-  app.appendChild(d);
+  app.appendChild(week);
 });
 
-// 🔹 DRAG
-document.querySelectorAll(".list").forEach(list => {
-  new Sortable(list, {
-    group: "treinos",
-    animation: 150,
+// LOAD
+fetch(API_URL)
+  .then(r => r.json())
+  .then(data => {
 
-    onAdd: function(evt){
-      const card = evt.item;
-      const id = card.dataset.id;
-      const newDia = evt.to.dataset.dia;
+    Object.keys(data).forEach(id => {
 
-      card.dataset.dia = newDia;
+      const item = data[id];
+      const card = cards[id];
 
-      saveData(id, newDia, card.dataset.link || "");
-    }
+      if(!card) return;
+
+      const viewBtn = card.querySelector(".view-btn");
+      const diaLabel = card.querySelector(".dia-label");
+
+      if(item.link){
+        card.dataset.link = item.link;
+        viewBtn.style.display = "inline-block";
+        viewBtn.onclick = () => window.open(item.link, "_blank");
+      }
+
+      if(item.dia){
+        card.dataset.dia = item.dia;
+        diaLabel.textContent = item.dia;
+      }
+
+    });
+
   });
-});
 
-// 🔹 SAVE (FUNÇÃO CENTRAL)
-function saveData(id, dia, link) {
+// SAVE
+function save(id, dia, link){
   fetch(API_URL, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
       id,
       dia,
@@ -127,42 +190,6 @@ function saveData(id, dia, link) {
     })
   });
 }
-
-// 🔹 LOAD
-fetch(API_URL)
-  .then(res => res.json())
-  .then(data => {
-
-    Object.keys(data).forEach(id => {
-
-      const item = data[id];
-      const card = cardsMap[id];
-
-      if(!card) return;
-
-      const viewBtn = card.querySelector(".view");
-
-      // link
-      if(item.link){
-        card.dataset.link = item.link;
-        viewBtn.style.display = "inline-block";
-        viewBtn.onclick = () => window.open(item.link, "_blank");
-      }
-
-      // dia (move)
-      if(item.dia){
-        const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
-        if(newList){
-          newList.appendChild(card);
-          card.dataset.dia = item.dia;
-        }
-      }
-
-    });
-
-  });
-
-};
 </script>
 
 </body>
