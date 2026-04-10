@@ -1,11 +1,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function () {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbwt6R_v15T7YZU4biC5phKDv6Kd02HKmIdtABinZHU15Lf5olggYnjLc7dc6zrpdOLK/exec";
 
-// 🔹 plano original
 const dataPlano = [
   {
     semana: 1,
@@ -27,88 +26,69 @@ while(dataPlano.length < 4){
   dataPlano[dataPlano.length-1].semana = dataPlano.length;
 }
 
-// 🔹 buscar dados guardados
-let saved = {};
-try {
-  saved = await fetch(API_URL).then(r => r.json());
-} catch(e) {
-  console.log("erro API");
-}
-
 const app = document.getElementById("app");
 
-// 🔥 RENDER
+// 🔴 PASSO 1 — render simples (SEM lógica complicada)
 dataPlano.forEach(sem => {
 
   const w = document.createElement("div");
   w.className = "week";
   w.innerHTML = `<h2>Semana ${sem.semana}</h2>`;
 
-  Object.entries(sem.dias).forEach(([diaOriginal, treinos]) => {
+  Object.entries(sem.dias).forEach(([dia, treinos]) => {
 
     const d = document.createElement("div");
     d.className = "day";
-    d.innerHTML = `<h3>${diaOriginal}</h3>`;
+    d.innerHTML = `<h3>${dia}</h3>`;
 
     const list = document.createElement("div");
     list.className = "list";
-    list.dataset.dia = diaOriginal;
+    list.dataset.dia = dia;
 
     treinos.forEach((t, i) => {
 
-      let id = `abril-s${sem.semana}-${diaOriginal}-${i}`;
-
-      // 🔥 se já foi movido → usar dia guardado
-      if(saved[id] && saved[id].dia){
-        list.dataset.override = true;
-      }
+      const id = `abril-s${sem.semana}-${dia}-${i}`;
 
       const card = document.createElement("div");
       card.className = "card";
       card.dataset.id = id;
-      card.dataset.dia = diaOriginal;
-
-      const link = saved[id]?.link || "";
+      card.dataset.dia = dia;
 
       card.innerHTML = `
         <div class="tag">${t}</div>
         <div class="actions">
           <button class="save-btn">Guardar</button>
-          <button class="view-btn" style="${link ? 'display:inline-block' : 'display:none'}">Ver treino</button>
+          <button class="view-btn" style="display:none">Ver treino</button>
         </div>
-        <input value="${link}">
+        <input style="display:none">
       `;
 
       const input = card.querySelector("input");
       const saveBtn = card.querySelector(".save-btn");
       const viewBtn = card.querySelector(".view-btn");
 
-      card.dataset.hasLink = link ? "1" : "0";
+      card.dataset.hasLink = "0";
 
       // guardar link
       saveBtn.onclick = () => {
-        const newLink = prompt("Cola o link do treino:", input.value);
-        if(!newLink) return;
+        const link = prompt("Cola o link:");
+        if(!link) return;
 
-        input.value = newLink;
+        input.value = link;
         card.dataset.hasLink = "1";
+
+        viewBtn.style.display = "inline-block";
+        viewBtn.onclick = () => window.open(link, "_blank");
 
         fetch(API_URL, {
           method: "POST",
           body: JSON.stringify({
             id,
-            link: newLink,
+            link,
             dia: card.dataset.dia
           })
         });
-
-        viewBtn.style.display = "inline-block";
-        viewBtn.onclick = () => window.open(newLink, "_blank");
       };
-
-      if(link){
-        viewBtn.onclick = () => window.open(link, "_blank");
-      }
 
       list.appendChild(card);
     });
@@ -120,27 +100,16 @@ dataPlano.forEach(sem => {
   app.appendChild(w);
 });
 
-// 🔥 aplicar movimentos guardados (MUITO IMPORTANTE)
-Object.keys(saved).forEach(id => {
-  const item = saved[id];
-  if(!item.dia) return;
 
-  const card = document.querySelector(`[data-id="${id}"]`);
-  const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
-
-  if(card && newList){
-    newList.appendChild(card);
-    card.dataset.dia = item.dia;
-  }
-});
-
-// 🔥 drag
+// 🔴 PASSO 2 — ativar drag
 document.querySelectorAll(".list").forEach(list => {
+
   new Sortable(list, {
     group: "treinos",
     animation: 150,
 
     onAdd: function(evt){
+
       const card = evt.item;
       const id = card.dataset.id;
       const newDia = evt.to.dataset.dia;
@@ -158,7 +127,49 @@ document.querySelectorAll(".list").forEach(list => {
       });
     }
   });
+
 });
+
+
+// 🔴 PASSO 3 — carregar dados guardados (SIMPLES E SEGURO)
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => {
+
+    if(!data) return;
+
+    Object.keys(data).forEach(id => {
+
+      const item = data[id];
+      const card = document.querySelector(`[data-id="${id}"]`);
+
+      if(!card) return;
+
+      const input = card.querySelector("input");
+      const viewBtn = card.querySelector(".view-btn");
+
+      // aplicar link
+      if(item.link){
+        input.value = item.link;
+        card.dataset.hasLink = "1";
+
+        viewBtn.style.display = "inline-block";
+        viewBtn.onclick = () => window.open(item.link, "_blank");
+      }
+
+      // 🔥 aplicar dia (move o card)
+      if(item.dia){
+        const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
+        if(newList){
+          newList.appendChild(card);
+          card.dataset.dia = item.dia;
+        }
+      }
+
+    });
+
+  })
+  .catch(err => console.log("erro API", err));
 
 });
 </script>
