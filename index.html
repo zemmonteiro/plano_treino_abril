@@ -47,7 +47,7 @@ const dataPlano = {
 const app = document.getElementById("app");
 const cardsMap = {};
 
-// RENDER
+// 🔹 RENDER
 Object.entries(dataPlano).forEach(([dia, treinos]) => {
 
   const d = document.createElement("div");
@@ -60,7 +60,7 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
 
   treinos.forEach((t, i) => {
 
-    const id = "treino-" + dia + "-" + i; // 🔥 FIX
+    const id = "treino-" + dia + "-" + i;
 
     const card = document.createElement("div");
     card.className = "card";
@@ -87,17 +87,7 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
       viewBtn.style.display = "inline-block";
       viewBtn.onclick = () => window.open(link, "_blank");
 
-      fetch(API_URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-          id,
-          dia: card.dataset.dia,
-          link
-        })
-      });
+      saveData(id, card.dataset.dia, link);
     };
 
     list.appendChild(card);
@@ -108,7 +98,7 @@ Object.entries(dataPlano).forEach(([dia, treinos]) => {
   app.appendChild(d);
 });
 
-// DRAG
+// 🔹 DRAG
 document.querySelectorAll(".list").forEach(list => {
   new Sortable(list, {
     group: "treinos",
@@ -121,19 +111,27 @@ document.querySelectorAll(".list").forEach(list => {
 
       card.dataset.dia = newDia;
 
-      fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          id,
-          dia: newDia,
-          link: card.dataset.link || ""
-        })
-      });
+      saveData(id, newDia, card.dataset.link || "");
     }
   });
 });
 
-// LOAD
+// 🔹 SAVE (FUNÇÃO CENTRAL)
+function saveData(id, dia, link) {
+  fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: id,
+      dia: dia,
+      link: link
+    })
+  });
+}
+
+// 🔹 LOAD
 fetch(API_URL)
   .then(res => res.json())
   .then(data => {
@@ -147,12 +145,14 @@ fetch(API_URL)
 
       const viewBtn = card.querySelector(".view");
 
+      // link
       if(item.link){
         card.dataset.link = item.link;
         viewBtn.style.display = "inline-block";
         viewBtn.onclick = () => window.open(item.link, "_blank");
       }
 
+      // dia (move)
       if(item.dia){
         const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
         if(newList){
