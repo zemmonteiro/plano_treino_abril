@@ -120,13 +120,10 @@ document.querySelectorAll(".list").forEach(list => {
 function saveData(id, dia, link) {
   fetch(API_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
     body: JSON.stringify({
-      id: id,
-      dia: dia,
-      link: link
+      id,
+      dia,
+      link
     })
   });
 }
