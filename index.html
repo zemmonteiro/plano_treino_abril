@@ -1,175 +1,104 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Plano Abril 2026</title>
+
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
+<style>
+body { font-family: sans-serif; padding: 20px; }
+.week { margin-bottom: 30px; }
+.day { margin-bottom: 15px; }
+.card { background: #eee; padding: 10px; margin: 5px 0; cursor: grab; }
+.list { min-height: 20px; }
+</style>
+
+</head>
+
+<body>
+
+<h1>Plano Abril</h1>
+
+<!-- 🔥 ISTO É O MAIS IMPORTANTE -->
+<div id="app"></div>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+window.onload = function () {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbwt6R_v15T7YZU4biC5phKDv6Kd02HKmIdtABinZHU15Lf5olggYnjLc7dc6zrpdOLK/exec";
 
-const dataPlano = [
-  {
-    semana: 1,
-    dias: {
-      "Segunda": ["Natação · 1h","Força · 1h"],
-      "Terça": ["Bike · 1h","Corrida · 45m"],
-      "Quarta": ["Bike · 1h","Corrida · 45m"],
-      "Quinta": ["Corrida · 1h"],
-      "Sexta": [],
-      "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
-      "Domingo": ["Patricia · 1h15"]
-    }
-  }
-];
-
-// duplicar semanas
-while(dataPlano.length < 4){
-  dataPlano.push(JSON.parse(JSON.stringify(dataPlano[dataPlano.length-1])));
-  dataPlano[dataPlano.length-1].semana = dataPlano.length;
-}
+const dataPlano = {
+  "Segunda": ["Natação","Força"],
+  "Terça": ["Bike","Corrida"],
+  "Quarta": ["Bike","Corrida"],
+  "Quinta": ["Corrida"],
+  "Sexta": [],
+  "Sábado": ["Long Bike","Corrida"],
+  "Domingo": ["Patricia"]
+};
 
 const app = document.getElementById("app");
 
-// 🔴 PASSO 1 — render simples (SEM lógica complicada)
-dataPlano.forEach(sem => {
+if(!app){
+  console.error("ERRO: #app não existe");
+  return;
+}
 
-  const w = document.createElement("div");
-  w.className = "week";
-  w.innerHTML = `<h2>Semana ${sem.semana}</h2>`;
+// render
+Object.entries(dataPlano).forEach(([dia, treinos]) => {
 
-  Object.entries(sem.dias).forEach(([dia, treinos]) => {
+  const d = document.createElement("div");
+  d.className = "day";
+  d.innerHTML = "<h3>"+dia+"</h3>";
 
-    const d = document.createElement("div");
-    d.className = "day";
-    d.innerHTML = `<h3>${dia}</h3>`;
+  const list = document.createElement("div");
+  list.className = "list";
+  list.dataset.dia = dia;
 
-    const list = document.createElement("div");
-    list.className = "list";
-    list.dataset.dia = dia;
+  treinos.forEach((t, i) => {
 
-    treinos.forEach((t, i) => {
+    const id = dia + "-" + i;
 
-      const id = `abril-s${sem.semana}-${dia}-${i}`;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.id = id;
+    card.dataset.dia = dia;
 
-      const card = document.createElement("div");
-      card.className = "card";
-      card.dataset.id = id;
-      card.dataset.dia = dia;
+    card.innerHTML = t;
 
-      card.innerHTML = `
-        <div class="tag">${t}</div>
-        <div class="actions">
-          <button class="save-btn">Guardar</button>
-          <button class="view-btn" style="display:none">Ver treino</button>
-        </div>
-        <input style="display:none">
-      `;
-
-      const input = card.querySelector("input");
-      const saveBtn = card.querySelector(".save-btn");
-      const viewBtn = card.querySelector(".view-btn");
-
-      card.dataset.hasLink = "0";
-
-      // guardar link
-      saveBtn.onclick = () => {
-        const link = prompt("Cola o link:");
-        if(!link) return;
-
-        input.value = link;
-        card.dataset.hasLink = "1";
-
-        viewBtn.style.display = "inline-block";
-        viewBtn.onclick = () => window.open(link, "_blank");
-
-        fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            id,
-            link,
-            dia: card.dataset.dia
-          })
-        });
-      };
-
-      list.appendChild(card);
-    });
-
-    d.appendChild(list);
-    w.appendChild(d);
+    list.appendChild(card);
   });
 
-  app.appendChild(w);
+  d.appendChild(list);
+  app.appendChild(d);
 });
 
-
-// 🔴 PASSO 2 — ativar drag
+// drag
 document.querySelectorAll(".list").forEach(list => {
-
   new Sortable(list, {
     group: "treinos",
     animation: 150,
 
     onAdd: function(evt){
-
       const card = evt.item;
-      const id = card.dataset.id;
       const newDia = evt.to.dataset.dia;
-      const input = card.querySelector("input");
-
-      card.dataset.dia = newDia;
 
       fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({
-          id,
-          dia: newDia,
-          link: input.value || ""
+          id: card.dataset.id,
+          dia: newDia
         })
       });
     }
   });
-
 });
 
-
-// 🔴 PASSO 3 — carregar dados guardados (SIMPLES E SEGURO)
-fetch(API_URL)
-  .then(res => res.json())
-  .then(data => {
-
-    if(!data) return;
-
-    Object.keys(data).forEach(id => {
-
-      const item = data[id];
-      const card = document.querySelector(`[data-id="${id}"]`);
-
-      if(!card) return;
-
-      const input = card.querySelector("input");
-      const viewBtn = card.querySelector(".view-btn");
-
-      // aplicar link
-      if(item.link){
-        input.value = item.link;
-        card.dataset.hasLink = "1";
-
-        viewBtn.style.display = "inline-block";
-        viewBtn.onclick = () => window.open(item.link, "_blank");
-      }
-
-      // 🔥 aplicar dia (move o card)
-      if(item.dia){
-        const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
-        if(newList){
-          newList.appendChild(card);
-          card.dataset.dia = item.dia;
-        }
-      }
-
-    });
-
-  })
-  .catch(err => console.log("erro API", err));
-
-});
+};
 </script>
+
+</body>
+</html>
