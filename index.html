@@ -1,131 +1,140 @@
-<!doctype html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<title>Plano Abril 2026</title>
-
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
-<style>
-body {
-  font-family: "DM Sans", sans-serif;
-  background: #f7f5f2;
-  padding: 40px;
-}
-
-.week { margin-bottom: 40px; }
-.day { margin-bottom: 20px; }
-
-.card {
-  background: white;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.list { min-height: 20px; }
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-
-</head>
-
-<body>
-
-<h1>Plano Abril 2026</h1>
-<div id="app"></div>
 
 <script>
 document.addEventListener("DOMContentLoaded", async function () {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbwt6R_v15T7YZU4biC5phKDv6Kd02HKmIdtABinZHU15Lf5olggYnjLc7dc6zrpdOLK/exec";
 
-// 🔹 plano base
-const basePlano = {
-  "Segunda": ["Natação · 1h","Força · 1h"],
-  "Terça": ["Bike · 1h","Corrida · 45m"],
-  "Quarta": ["Bike · 1h","Corrida · 45m"],
-  "Quinta": ["Corrida · 1h"],
-  "Sexta": [],
-  "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
-  "Domingo": ["Patricia · 1h15"]
-};
+// 🔹 plano original
+const dataPlano = [
+  {
+    semana: 1,
+    dias: {
+      "Segunda": ["Natação · 1h","Força · 1h"],
+      "Terça": ["Bike · 1h","Corrida · 45m"],
+      "Quarta": ["Bike · 1h","Corrida · 45m"],
+      "Quinta": ["Corrida · 1h"],
+      "Sexta": [],
+      "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
+      "Domingo": ["Patricia · 1h15"]
+    }
+  }
+];
+
+// duplicar semanas
+while(dataPlano.length < 4){
+  dataPlano.push(JSON.parse(JSON.stringify(dataPlano[dataPlano.length-1])));
+  dataPlano[dataPlano.length-1].semana = dataPlano.length;
+}
 
 // 🔹 buscar dados guardados
 let saved = {};
 try {
   saved = await fetch(API_URL).then(r => r.json());
 } catch(e) {
-  console.log("erro a carregar dados");
+  console.log("erro API");
 }
 
-// 🔹 criar estrutura final
-let dias = JSON.parse(JSON.stringify(basePlano));
+const app = document.getElementById("app");
 
-// mover treinos se tiverem dia guardado
-Object.keys(saved).forEach(id => {
-  const item = saved[id];
-  if(item.dia){
-    const parts = id.split("-");
-    const nome = parts.slice(3).join("-");
+// 🔥 RENDER
+dataPlano.forEach(sem => {
 
-    // remover de todos os dias
-    Object.keys(dias).forEach(d => {
-      dias[d] = dias[d].filter(t => t !== nome);
+  const w = document.createElement("div");
+  w.className = "week";
+  w.innerHTML = `<h2>Semana ${sem.semana}</h2>`;
+
+  Object.entries(sem.dias).forEach(([diaOriginal, treinos]) => {
+
+    const d = document.createElement("div");
+    d.className = "day";
+    d.innerHTML = `<h3>${diaOriginal}</h3>`;
+
+    const list = document.createElement("div");
+    list.className = "list";
+    list.dataset.dia = diaOriginal;
+
+    treinos.forEach((t, i) => {
+
+      let id = `abril-s${sem.semana}-${diaOriginal}-${i}`;
+
+      // 🔥 se já foi movido → usar dia guardado
+      if(saved[id] && saved[id].dia){
+        list.dataset.override = true;
+      }
+
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.id = id;
+      card.dataset.dia = diaOriginal;
+
+      const link = saved[id]?.link || "";
+
+      card.innerHTML = `
+        <div class="tag">${t}</div>
+        <div class="actions">
+          <button class="save-btn">Guardar</button>
+          <button class="view-btn" style="${link ? 'display:inline-block' : 'display:none'}">Ver treino</button>
+        </div>
+        <input value="${link}">
+      `;
+
+      const input = card.querySelector("input");
+      const saveBtn = card.querySelector(".save-btn");
+      const viewBtn = card.querySelector(".view-btn");
+
+      card.dataset.hasLink = link ? "1" : "0";
+
+      // guardar link
+      saveBtn.onclick = () => {
+        const newLink = prompt("Cola o link do treino:", input.value);
+        if(!newLink) return;
+
+        input.value = newLink;
+        card.dataset.hasLink = "1";
+
+        fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            id,
+            link: newLink,
+            dia: card.dataset.dia
+          })
+        });
+
+        viewBtn.style.display = "inline-block";
+        viewBtn.onclick = () => window.open(newLink, "_blank");
+      };
+
+      if(link){
+        viewBtn.onclick = () => window.open(link, "_blank");
+      }
+
+      list.appendChild(card);
     });
 
-    // adicionar ao novo dia
-    if(!dias[item.dia]) dias[item.dia] = [];
-    dias[item.dia].push(nome);
+    d.appendChild(list);
+    w.appendChild(d);
+  });
+
+  app.appendChild(w);
+});
+
+// 🔥 aplicar movimentos guardados (MUITO IMPORTANTE)
+Object.keys(saved).forEach(id => {
+  const item = saved[id];
+  if(!item.dia) return;
+
+  const card = document.querySelector(`[data-id="${id}"]`);
+  const newList = document.querySelector(`.list[data-dia="${item.dia}"]`);
+
+  if(card && newList){
+    newList.appendChild(card);
+    card.dataset.dia = item.dia;
   }
 });
 
-// 🔹 render
-const app = document.getElementById("app");
-
-Object.entries(dias).forEach(([dia, treinos]) => {
-
-  const d = document.createElement("div");
-  d.className = "day";
-  d.innerHTML = `<h3>${dia}</h3>`;
-
-  const list = document.createElement("div");
-  list.className = "list";
-  list.dataset.dia = dia;
-
-  treinos.forEach((t, i) => {
-
-    const id = `abril-s1-${dia}-${t}`;
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.dataset.id = id;
-
-    const link = saved[id]?.link || "";
-
-    card.innerHTML = `
-      <span>${t}</span>
-      <button onclick="window.open('${link}','_blank')">Ver</button>
-    `;
-
-    if(link){
-      card.dataset.hasLink = "1";
-    } else {
-      card.dataset.hasLink = "0";
-    }
-
-    list.appendChild(card);
-  });
-
-  d.appendChild(list);
-  app.appendChild(d);
-});
-
-// 🔹 drag
+// 🔥 drag
 document.querySelectorAll(".list").forEach(list => {
   new Sortable(list, {
     group: "treinos",
@@ -135,12 +144,16 @@ document.querySelectorAll(".list").forEach(list => {
       const card = evt.item;
       const id = card.dataset.id;
       const newDia = evt.to.dataset.dia;
+      const input = card.querySelector("input");
+
+      card.dataset.dia = newDia;
 
       fetch(API_URL, {
         method: "POST",
         body: JSON.stringify({
           id,
-          dia: newDia
+          dia: newDia,
+          link: input.value || ""
         })
       });
     }
@@ -149,6 +162,3 @@ document.querySelectorAll(".list").forEach(list => {
 
 });
 </script>
-
-</body>
-</html>
