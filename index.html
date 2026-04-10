@@ -13,13 +13,6 @@ body {
   font-family: "DM Sans", sans-serif;
   background: #f7f5f2;
   padding: 40px;
-  color: #1a1612;
-}
-
-h1 {
-  font-family: "DM Serif Display";
-  font-size: 40px;
-  margin-bottom: 20px;
 }
 
 .week { margin-bottom: 40px; }
@@ -27,43 +20,16 @@ h1 {
 
 .card {
   background: white;
-  padding: 12px 14px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 12px;
   margin-bottom: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
-.tag { font-size: 12px; opacity: 0.8; }
-
-.actions {
-  display: flex;
-  gap: 6px;
-}
-
-button {
-  border: none;
-  border-radius: 8px;
-  padding: 5px 10px;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.save-btn { background: #eee; }
-.view-btn {
-  background: #2a9e6a;
-  color: white;
-  display: none;
-}
-
-.list {
-  min-height: 20px;
-}
+.list { min-height: 20px; }
 </style>
 
-<!-- SORTABLE -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 </head>
@@ -71,169 +37,115 @@ button {
 <body>
 
 <h1>Plano Abril 2026</h1>
-
 <div id="app"></div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbwt6R_v15T7YZU4biC5phKDv6Kd02HKmIdtABinZHU15Lf5olggYnjLc7dc6zrpdOLK/exec";
 
-const dataPlano = [
-  {
-    semana: 1,
-    dias: {
-      "Segunda": ["Natação · 1h","Força · 1h"],
-      "Terça": ["Bike · 1h","Corrida · 45m"],
-      "Quarta": ["Bike · 1h","Corrida · 45m"],
-      "Quinta": ["Corrida · 1h"],
-      "Sexta": [],
-      "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
-      "Domingo": ["Patricia · 1h15"]
-    }
-  }
-];
+// 🔹 plano base
+const basePlano = {
+  "Segunda": ["Natação · 1h","Força · 1h"],
+  "Terça": ["Bike · 1h","Corrida · 45m"],
+  "Quarta": ["Bike · 1h","Corrida · 45m"],
+  "Quinta": ["Corrida · 1h"],
+  "Sexta": [],
+  "Sábado": ["Long Bike · 3h30","Corrida · 30m"],
+  "Domingo": ["Patricia · 1h15"]
+};
 
-// duplicar semanas
-while(dataPlano.length < 4){
-  dataPlano.push(JSON.parse(JSON.stringify(dataPlano[dataPlano.length-1])));
-  dataPlano[dataPlano.length-1].semana = dataPlano.length;
+// 🔹 buscar dados guardados
+let saved = {};
+try {
+  saved = await fetch(API_URL).then(r => r.json());
+} catch(e) {
+  console.log("erro a carregar dados");
 }
 
-const app = document.getElementById("app");
+// 🔹 criar estrutura final
+let dias = JSON.parse(JSON.stringify(basePlano));
 
-// RENDER
-dataPlano.forEach(sem => {
+// mover treinos se tiverem dia guardado
+Object.keys(saved).forEach(id => {
+  const item = saved[id];
+  if(item.dia){
+    const parts = id.split("-");
+    const nome = parts.slice(3).join("-");
 
-  const w = document.createElement("div");
-  w.className = "week";
-  w.innerHTML = `<h2>Semana ${sem.semana}</h2>`;
-
-  Object.entries(sem.dias).forEach(([dia, treinos]) => {
-
-    const d = document.createElement("div");
-    d.className = "day";
-    d.innerHTML = `<h3>${dia}</h3>`;
-
-    const list = document.createElement("div");
-    list.className = "list";
-    list.dataset.dia = dia;
-
-    if(treinos.length === 0){
-      const p = document.createElement("p");
-      p.textContent = "Descanso";
-      d.appendChild(p);
-    }
-
-    treinos.forEach((t, i) => {
-
-      const id = `abril-s${sem.semana}-${dia}-${i}`;
-
-      const card = document.createElement("div");
-      card.className = "card";
-      card.dataset.id = id;
-      card.dataset.dia = dia;
-
-      card.innerHTML = `
-        <div class="tag">${t}</div>
-        <div class="actions">
-          <button class="save-btn">Guardar</button>
-          <button class="view-btn">Ver treino</button>
-        </div>
-        <input data-id="${id}" placeholder="link">
-      `;
-
-      const input = card.querySelector("input");
-      const saveBtn = card.querySelector(".save-btn");
-      const viewBtn = card.querySelector(".view-btn");
-
-      // estado inicial
-      card.dataset.hasLink = "0";
-
-      saveBtn.onclick = () => {
-        const link = prompt("Cola o link do treino:");
-        if(!link) return;
-
-        input.value = link;
-        card.dataset.hasLink = "1";
-
-        fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            id,
-            link,
-            dia: card.dataset.dia
-          })
-        });
-
-        viewBtn.style.display = "inline-block";
-        viewBtn.onclick = () => window.open(link, "_blank");
-      };
-
-      list.appendChild(card);
+    // remover de todos os dias
+    Object.keys(dias).forEach(d => {
+      dias[d] = dias[d].filter(t => t !== nome);
     });
 
-    d.appendChild(list);
-    w.appendChild(d);
-  });
-
-  app.appendChild(w);
+    // adicionar ao novo dia
+    if(!dias[item.dia]) dias[item.dia] = [];
+    dias[item.dia].push(nome);
+  }
 });
 
-// DRAG & DROP
-document.querySelectorAll(".list").forEach(list => {
+// 🔹 render
+const app = document.getElementById("app");
 
+Object.entries(dias).forEach(([dia, treinos]) => {
+
+  const d = document.createElement("div");
+  d.className = "day";
+  d.innerHTML = `<h3>${dia}</h3>`;
+
+  const list = document.createElement("div");
+  list.className = "list";
+  list.dataset.dia = dia;
+
+  treinos.forEach((t, i) => {
+
+    const id = `abril-s1-${dia}-${t}`;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.id = id;
+
+    const link = saved[id]?.link || "";
+
+    card.innerHTML = `
+      <span>${t}</span>
+      <button onclick="window.open('${link}','_blank')">Ver</button>
+    `;
+
+    if(link){
+      card.dataset.hasLink = "1";
+    } else {
+      card.dataset.hasLink = "0";
+    }
+
+    list.appendChild(card);
+  });
+
+  d.appendChild(list);
+  app.appendChild(d);
+});
+
+// 🔹 drag
+document.querySelectorAll(".list").forEach(list => {
   new Sortable(list, {
     group: "treinos",
     animation: 150,
 
-    onAdd: function (evt) {
-
+    onAdd: function(evt){
       const card = evt.item;
-      const newDia = evt.to.dataset.dia;
       const id = card.dataset.id;
-      const input = card.querySelector("input");
+      const newDia = evt.to.dataset.dia;
 
-      card.dataset.dia = newDia;
-
-      if(card.dataset.hasLink === "1") {
-        fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            id,
-            dia: newDia,
-            link: input.value
-          })
-        });
-      }
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          id,
+          dia: newDia
+        })
+      });
     }
   });
-
 });
-
-// LOAD LINKS
-fetch(API_URL)
-  .then(res => res.json())
-  .then(data => {
-
-    if(!data) return;
-
-    document.querySelectorAll(".card").forEach(card => {
-
-      const id = card.dataset.id;
-      const input = card.querySelector("input");
-      const viewBtn = card.querySelector(".view-btn");
-
-      if(data[id] && data[id].link){
-        input.value = data[id].link;
-        card.dataset.hasLink = "1";
-
-        viewBtn.style.display = "inline-block";
-        viewBtn.onclick = () => window.open(data[id].link, "_blank");
-      }
-
-    });
-  });
 
 });
 </script>
